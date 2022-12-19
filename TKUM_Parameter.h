@@ -3,8 +3,7 @@
 #ifndef TKUM_PARAMETER_H
 #define TKUM_PARAMETER_H
 
-#include "..\Headers\AE_Effect.h"
-#include "..\Headers\AE_EffectSuites.h"
+#include "TKUM.h"
 
 #define TKUM_CHECKOUT_PARAM(IN_DATA, ID, PARAM)		PF_CHECKOUT_PARAM(IN_DATA, ID, IN_DATA->current_time, IN_DATA->time_step, IN_DATA->time_scale, PARAM)
 
@@ -176,7 +175,9 @@ public:
 			&param
 		);
 
-		layer_data = &param.u.ld;
+		*layer_data = param.u.ld;
+
+		ERR(PF_CHECKIN_PARAM(in_data, &param));
 
 	}
 

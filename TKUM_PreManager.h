@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "TKUM_Parameter.h"
+#include "TKUM.h"
 
 /**
 @brief		management for SmartFx PreRender
