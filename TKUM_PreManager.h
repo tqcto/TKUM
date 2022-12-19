@@ -19,6 +19,14 @@ private:
 	PF_PreRenderExtra*	extra = nullptr;
 	PF_RenderRequest*	req;
 
+	/* delete GetLayer in PreRender */
+	PF_Err GetLayer(int id, PF_LayerDef* layer_data) {
+		return PF_Err_NONE;
+	}
+	PF_Err GetLayer(int id, int frame, PF_LayerDef* layer_data) {
+		return PF_Err_NONE;
+	}
+
 public:
 
 	PreManager(PF_InData* in, PF_OutData* out, PF_PreRenderExtra* ex) : Parameter(in, out) {

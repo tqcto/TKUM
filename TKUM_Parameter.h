@@ -162,7 +162,7 @@ public:
 
 	}
 
-	PF_Err GetLayer(int id, PF_LayerDef* layer_data) {
+	virtual PF_Err GetLayer(int id, PF_LayerDef* layer_data) {
 
 		init();
 
@@ -182,7 +182,7 @@ public:
 		return err;
 
 	}
-	PF_Err GetLayer(int id, PF_LayerDef* layer_data, int frame) {
+	virtual PF_Err GetLayer(int id, PF_LayerDef* layer_data, int frame) {
 
 		init();
 
