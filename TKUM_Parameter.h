@@ -180,6 +180,24 @@ public:
 		ERR(PF_CHECKIN_PARAM(in_data, &param));
 
 	}
+	PF_Err GetLayer(int id, PF_LayerDef* layer_data, int frame) {
+
+		init();
+
+		err = in_data->inter.checkout_param(
+			in_data->effect_ref,
+			id,
+			frame * in_data->time_step,
+			in_data->time_step,
+			in_data->time_scale,
+			&param
+		);
+
+		*layer_data = param.u.ld;
+
+		ERR(PF_CHECKIN_PARAM(in_data, &param));
+
+	}
 
 };
 
