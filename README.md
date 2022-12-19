@@ -38,7 +38,7 @@ The producer's development environment is as follows:
 AfterEffectsSDK/Examples/Headers/AEFX_SuiteHandlerTemplate.cpp
 ```
 
-7. Select `General` in `C/C++` page.
+7. Go to `General` in `C/C++` property page.
 
 8. Add the following paths to `Additional Include Directories`:
 
