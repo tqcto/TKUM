@@ -3,9 +3,6 @@
 #ifndef TKUM_PRE_MANAGER_H
 #define TKUM_PRE_MANAGER_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "TKUM.h"
 
 /**
