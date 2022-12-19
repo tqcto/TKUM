@@ -179,6 +179,8 @@ public:
 
 		ERR(PF_CHECKIN_PARAM(in_data, &param));
 
+		return err;
+
 	}
 	PF_Err GetLayer(int id, PF_LayerDef* layer_data, int frame) {
 
@@ -196,6 +198,8 @@ public:
 		*layer_data = param.u.ld;
 
 		ERR(PF_CHECKIN_PARAM(in_data, &param));
+
+		return err;
 
 	}
 
