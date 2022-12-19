@@ -162,7 +162,6 @@ public:
 
 	}
 
-	/*
 	PF_Err GetLayer(int id, PF_LayerDef* layer_data) {
 
 		init();
@@ -183,7 +182,7 @@ public:
 		return err;
 
 	}
-	PF_Err GetLayer(int id, int frame, PF_LayerDef* layer_data) {
+	PF_Err GetLayer(int id, PF_LayerDef* layer_data, int frame) {
 
 		init();
 
@@ -203,7 +202,6 @@ public:
 		return err;
 
 	}
-	*/
 
 };
 
