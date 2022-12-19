@@ -3,7 +3,7 @@
 #ifndef TKUM_RECT_H
 #define TKUM_RECT_H
 
-#include "AE_Effect.h"
+#include "..\Headers\AE_Effect.h"
 
 #define RECT2INT4(_RECT_)	{ _RECT_.left, _RECT_.top, _RECT_.right, _RECT_.bottom }
 

@@ -3,8 +3,8 @@
 #ifndef TKUM_PARAMETER_H
 #define TKUM_PARAMETER_H
 
-#include "AE_Effect.h"
-#include "AE_EffectSuites.h"
+#include "..\Headers\AE_Effect.h"
+#include "..\Headers\AE_EffectSuites.h"
 
 #define TKUM_CHECKOUT_PARAM(IN_DATA, ID, PARAM)		PF_CHECKOUT_PARAM(IN_DATA, ID, IN_DATA->current_time, IN_DATA->time_step, IN_DATA->time_scale, PARAM)
 
@@ -20,6 +20,8 @@ protected:
 
 	PF_Err		err			= PF_Err_NONE;
 	PF_ParamDef	param;
+
+	//std::vector<PF_LayerDef*> checkouted_layers;
 
 	void init(void) {
 		err = PF_Err_NONE;
@@ -158,6 +160,23 @@ public:
 		ERR(PF_CHECKIN_PARAM(in_data, &param));
 
 		return err;
+
+	}
+
+	PF_Err GetLayer(int id, PF_LayerDef* layer_data) {
+
+		init();
+
+		err = in_data->inter.checkout_param(
+			in_data->effect_ref,
+			id,
+			in_data->current_time,
+			in_data->time_step,
+			in_data->time_scale,
+			&param
+		);
+
+		layer_data = &param.u.ld;
 
 	}
 
