@@ -22,8 +22,10 @@ private:
 	PF_EffectWorld				*input				= nullptr,
 								*output				= nullptr;
 
+	PF_PixelFormat				pixel_format;
+
 	bool						is_input_checkouted	= false;
-	std::vector<PF_ParamDef*>	layer_datas;
+	std::vector<PF_EffectWorld*>	layer_datas;
 
 	void init(void) {
 		err = PF_Err_NONE;
@@ -38,6 +40,8 @@ public:
 		out_data = out;
 		extra = ex;
 
+		pixel_format = PF_PixelFormat_INVALID;
+
 		init();
 
 	}
@@ -50,10 +54,22 @@ public:
 		if (is_input_checkouted) CheckinInput();
 
 		if (layer_datas.size()) {
-
-
-
+			for (auto itr = layer_datas.begin(); itr != layer_datas.end(); itr++) {
+				CheckinLayer(*itr);
+			}
 		}
+
+	}
+
+	PF_PixelFormat GetPixelFormat(void) const {
+
+		return pixel_format;
+
+	}
+
+	template<typename T> T* GetPreRenderData(void) const {
+
+		return reinterpret_cast<T*>(extra->input->pre_render_data);
 
 	}
 
@@ -64,8 +80,11 @@ public:
 			kPFWorldSuiteVersion2,
 			out_data);
 
-		PF_PixelFormat	pixel_format = PF_PixelFormat_INVALID;
 		ERR(world_suite->PF_GetPixelFormat(input, &pixel_format));
+
+		if (err) return err;
+
+		is_input_checkouted = true;
 
 		return extra->cb->checkout_layer_pixels(in_data->effect_ref, 0, &input);
 
@@ -93,7 +112,7 @@ public:
 		if (err) return err;
 
 		*world = param.u.ld;
-		layer_datas.push_back(&(param.u.ld));
+		layer_datas.push_back(&param.u.ld);
 
 		return err;
 
@@ -101,7 +120,31 @@ public:
 
 	PF_Err CheckinInput(void) {
 
-		return extra->cb->checkin_layer_pixels(in_data->effect_ref, 0);
+		init();
+
+		err = extra->cb->checkin_layer_pixels(in_data->effect_ref, 0);
+		if (err) return err;
+
+		is_input_checkouted = false;
+
+		return err;
+
+	}
+
+	PF_Err CheckinLayer(PF_EffectWorld* checkouted_param) {
+
+		init();
+
+		for (auto itr = layer_datas.begin(); itr != layer_datas.end(); itr++) {
+			if ((*itr) == checkouted_param) {
+				layer_datas.erase(itr);
+			}
+		}
+
+		param.u.ld = *checkouted_param;
+		err = PF_CHECKIN_PARAM(in_data, &param);
+
+		return err;
 
 	}
 
