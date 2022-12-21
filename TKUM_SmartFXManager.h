@@ -19,11 +19,6 @@ private:
 	PF_OutData*					out_data			= nullptr;
 	PF_SmartRenderExtra*		extra				= nullptr;
 
-	PF_EffectWorld				*input				= nullptr,
-								*output				= nullptr;
-
-	PF_PixelFormat				pixel_format;
-
 	bool						is_input_checkouted	= false;
 	std::vector<PF_EffectWorld*>	layer_datas;
 
@@ -40,16 +35,10 @@ public:
 		out_data = out;
 		extra = ex;
 
-		pixel_format = PF_PixelFormat_INVALID;
-
 		init();
 
 	}
 	~SmartFXManager(void) {
-
-		in_data = nullptr;
-		out_data = nullptr;
-		extra = nullptr;
 
 		if (is_input_checkouted) CheckinInput();
 
@@ -59,11 +48,9 @@ public:
 			}
 		}
 
-	}
-
-	PF_PixelFormat GetPixelFormat(void) const {
-
-		return pixel_format;
+		in_data = nullptr;
+		out_data = nullptr;
+		extra = nullptr;
 
 	}
 
@@ -73,26 +60,30 @@ public:
 
 	}
 
-	PF_Err CheckoutInput(PF_EffectWorld* input) {
+	PF_Err CheckoutInput(PF_EffectWorld** input, PF_PixelFormat* format) {
 
-		AEFX_SuiteScoper<PF_WorldSuite2> world_suite = AEFX_SuiteScoper<PF_WorldSuite2>(in_data,
-			kPFWorldSuite,
-			kPFWorldSuiteVersion2,
-			out_data);
-
-		ERR(world_suite->PF_GetPixelFormat(input, &pixel_format));
+		err = extra->cb->checkout_layer_pixels(in_data->effect_ref, 0, input);
 
 		if (err) return err;
 
 		is_input_checkouted = true;
 
-		return extra->cb->checkout_layer_pixels(in_data->effect_ref, 0, &input);
+		AEFX_SuiteScoper<PF_WorldSuite2> world_suite = AEFX_SuiteScoper<PF_WorldSuite2>(
+			in_data,
+			kPFWorldSuite,
+			kPFWorldSuiteVersion2,
+			out_data
+		);
+
+		ERR(world_suite->PF_GetPixelFormat(*input, format));
+
+		return err;
 
 	}
 
-	PF_Err CheckoutOutput(PF_EffectWorld* output) {
+	PF_Err CheckoutOutput(PF_EffectWorld** output) {
 
-		return extra->cb->checkout_output(in_data->effect_ref, &output);
+		return extra->cb->checkout_output(in_data->effect_ref, output);
 
 	}
 
