@@ -41,12 +41,14 @@ public:
 	~SmartFXManager(void) {
 
 		if (is_input_checkouted) CheckinInput();
-
+		
+		#ifdef _TEST_SMART_FX_LAYER_
 		if (layer_datas.size()) {
-			for (auto itr = layer_datas.begin(); itr != layer_datas.end(); itr++) {
-				CheckinLayer(*itr);
+			for (auto &itr:layer_datas) {
+				CheckinLayer(itr);
 			}
 		}
+		#endif
 
 		in_data = nullptr;
 		out_data = nullptr;
@@ -64,18 +66,20 @@ public:
 
 		err = extra->cb->checkout_layer_pixels(in_data->effect_ref, 0, input);
 
-		if (err) return err;
+		if (err) {
 
-		is_input_checkouted = true;
+			is_input_checkouted = true;
 
-		AEFX_SuiteScoper<PF_WorldSuite2> world_suite = AEFX_SuiteScoper<PF_WorldSuite2>(
-			in_data,
-			kPFWorldSuite,
-			kPFWorldSuiteVersion2,
-			out_data
-		);
+			AEFX_SuiteScoper<PF_WorldSuite2> world_suite = AEFX_SuiteScoper<PF_WorldSuite2>(
+				in_data,
+				kPFWorldSuite,
+				kPFWorldSuiteVersion2,
+				out_data
+				);
 
-		ERR(world_suite->PF_GetPixelFormat(*input, format));
+			ERR(world_suite->PF_GetPixelFormat(*input, format));
+
+		}
 
 		return err;
 
@@ -87,6 +91,7 @@ public:
 
 	}
 
+	#ifdef _TEST_SMART_FX_LAYER_
 	PF_Err CheckoutLayer(int id, int frame, PF_EffectWorld* world) {
 
 		init();
@@ -100,44 +105,47 @@ public:
 			&param
 		);
 
-		if (err) return err;
-
-		*world = param.u.ld;
-		layer_datas.push_back(&param.u.ld);
+		if (!err) {
+			*world = param.u.ld;
+			layer_datas.push_back(&param.u.ld);
+		}
 
 		return err;
 
 	}
+	#endif
 
 	PF_Err CheckinInput(void) {
 
 		init();
 
 		err = extra->cb->checkin_layer_pixels(in_data->effect_ref, 0);
-		if (err) return err;
-
-		is_input_checkouted = false;
+		if (!err) is_input_checkouted = false;
 
 		return err;
 
 	}
 
+	#ifdef _TEST_SMART_FX_LAYER_
 	PF_Err CheckinLayer(PF_EffectWorld* checkouted_param) {
 
 		init();
 
-		for (auto itr = layer_datas.begin(); itr != layer_datas.end(); itr++) {
-			if ((*itr) == checkouted_param) {
-				layer_datas.erase(itr);
-			}
-		}
-
 		param.u.ld = *checkouted_param;
 		err = PF_CHECKIN_PARAM(in_data, &param);
+
+		if (!err) {
+			for (auto itr = layer_datas.begin(); itr != layer_datas.end(); itr++) {
+				if ((*itr) == checkouted_param) {
+					layer_datas.erase(itr);
+				}
+			}
+		}
 
 		return err;
 
 	}
+	#endif
 
 };
 

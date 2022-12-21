@@ -9,6 +9,8 @@
 #ifndef TKUM_H
 #define TKUM_H
 
+//#define _TEST_SMART_FX_LAYER_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
