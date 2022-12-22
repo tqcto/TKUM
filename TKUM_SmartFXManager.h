@@ -66,7 +66,7 @@ public:
 
 		err = extra->cb->checkout_layer_pixels(in_data->effect_ref, 0, input);
 
-		if (err) {
+		if (!err) {
 
 			is_input_checkouted = true;
 

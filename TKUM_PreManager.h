@@ -63,11 +63,11 @@ public:
 		extra->output->pre_render_data = info;
 	}
 
-	PF_Err CheckoutLayer(int id, PF_CheckoutResult* result) {
+	PF_Err CheckoutLayer(PF_CheckoutResult* result) {
 		return extra->cb->checkout_layer(
 			in_data->effect_ref,
-			id,
-			id,
+			0,
+			0,
 			req,
 			in_data->current_time,
 			in_data->time_step,
