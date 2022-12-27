@@ -56,26 +56,13 @@ public:
 
 	}
 
-	PF_Err CheckoutLayer(int id, PF_EffectWorld** world, PF_PixelFormat* format) {
+	PF_Err CheckoutLayer(int id, PF_EffectWorld** world) {
 
 		init();
 
 		err = extra->cb->checkout_layer_pixels(in_data->effect_ref, id, world);
 
-		if (!err) {
-
-			layer_datas.push_back(id);
-
-			AEFX_SuiteScoper<PF_WorldSuite2> world_suite = AEFX_SuiteScoper<PF_WorldSuite2>(
-				in_data,
-				kPFWorldSuite,
-				kPFWorldSuiteVersion2,
-				out_data
-				);
-
-			ERR(world_suite->PF_GetPixelFormat(*world, format));
-
-		}
+		if (!err) layer_datas.push_back(id);
 
 		return err;
 
