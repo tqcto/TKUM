@@ -13,18 +13,16 @@ class SmartFXManager {
 private:
 
 	PF_Err						err					= PF_Err_NONE;
-	PF_ParamDef					param;
 
 	PF_InData*					in_data				= nullptr;
 	PF_OutData*					out_data			= nullptr;
 	PF_SmartRenderExtra*		extra				= nullptr;
 
 	bool						is_input_checkouted	= false;
-	std::vector<PF_EffectWorld*>	layer_datas;
+	std::vector<int>			layer_datas;
 
 	void init(void) {
 		err = PF_Err_NONE;
-		AEFX_CLR_STRUCT(param);
 	}
 
 public:
@@ -40,15 +38,11 @@ public:
 	}
 	~SmartFXManager(void) {
 
-		if (is_input_checkouted) CheckinInput();
-		
-		#ifdef _TEST_SMART_FX_LAYER_
 		if (layer_datas.size()) {
 			for (auto &itr:layer_datas) {
 				CheckinLayer(itr);
 			}
 		}
-		#endif
 
 		in_data = nullptr;
 		out_data = nullptr;
@@ -62,13 +56,15 @@ public:
 
 	}
 
-	PF_Err CheckoutInput(PF_EffectWorld** input, PF_PixelFormat* format) {
+	PF_Err CheckoutLayer(int id, PF_EffectWorld** world, PF_PixelFormat* format) {
 
-		err = extra->cb->checkout_layer_pixels(in_data->effect_ref, 0, input);
+		init();
+
+		err = extra->cb->checkout_layer_pixels(in_data->effect_ref, id, world);
 
 		if (!err) {
 
-			is_input_checkouted = true;
+			layer_datas.push_back(id);
 
 			AEFX_SuiteScoper<PF_WorldSuite2> world_suite = AEFX_SuiteScoper<PF_WorldSuite2>(
 				in_data,
@@ -77,7 +73,7 @@ public:
 				out_data
 				);
 
-			ERR(world_suite->PF_GetPixelFormat(*input, format));
+			ERR(world_suite->PF_GetPixelFormat(*world, format));
 
 		}
 
@@ -91,61 +87,24 @@ public:
 
 	}
 
-	#ifdef _TEST_SMART_FX_LAYER_
-	PF_Err CheckoutLayer(int id, int frame, PF_EffectWorld* world) {
+	PF_Err CheckinLayer(int id) {
 
 		init();
 
-		err = PF_CHECKOUT_PARAM(
-			in_data,
-			id,
-			frame * in_data->time_step,
-			in_data->time_step,
-			in_data->time_scale,
-			&param
-		);
+		while (layer_datas.size()) {
 
-		if (!err) {
-			*world = param.u.ld;
-			layer_datas.push_back(&param.u.ld);
 		}
 
-		return err;
-
-	}
-	#endif
-
-	PF_Err CheckinInput(void) {
-
-		init();
-
-		err = extra->cb->checkin_layer_pixels(in_data->effect_ref, 0);
-		if (!err) is_input_checkouted = false;
-
-		return err;
-
-	}
-
-	#ifdef _TEST_SMART_FX_LAYER_
-	PF_Err CheckinLayer(PF_EffectWorld* checkouted_param) {
-
-		init();
-
-		param.u.ld = *checkouted_param;
-		err = PF_CHECKIN_PARAM(in_data, &param);
-
-		if (!err) {
-			for (auto itr = layer_datas.begin(); itr != layer_datas.end(); itr++) {
-				if ((*itr) == checkouted_param) {
-					layer_datas.erase(itr);
-				}
+		for (auto itr = layer_datas.begin(); itr != layer_datas.end();) {
+			if (*itr == id) {
+				err = extra->cb->checkin_layer_pixels(in_data->effect_ref, id);
+				if (!err) layer_datas.erase(itr);
 			}
 		}
 
 		return err;
 
 	}
-	#endif
 
 };
 
